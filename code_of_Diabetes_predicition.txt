@@ -1,0 +1,149 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+# reading dataset
+df = pd.read_csv(r'Documents\Machine-Learning-with-Python-master\diabetes.csv')
+print(df.head())
+print("shape of data set is {}".format(df.shape))
+import seaborn as sns
+sns.countplot(df['Outcome'],label='count')       # counting plot of the outcome
+print(df.describe())                             # to get the statistical measurements
+print(df.info())                                 # to ge the information of the data type
+
+# spliting dataset into training and testing set
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test = train_test_split(df.loc[:,df.columns!='Outcome'],df['Outcome'],stratify=df['Outcome'],random_state=66)
+
+# K-nearest_neighbors classifer
+list_of_training_accuracy = []
+list_of_testing_accuracy = []
+from sklearn.neighbors import KNeighborsClassifier
+training_accuracy = []
+testing_accuracy = [] 
+neighbors = list(range(1,10))
+for no_of_neighbors in neighbors:
+    kn = KNeighborsClassifier(n_neighbors=no_of_neighbors).fit(x_train,y_train)
+    y_pre = kn.predict(x_test)
+    print("predicted values of k = {} is ".format(no_of_neighbors))
+    print(y_pre)
+
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+for no_of_neighbors in neighbors:
+    kn = KNeighborsClassifier(n_neighbors=no_of_neighbors).fit(x_train,y_train)
+    training_accuracy.append(kn.score(x_train,y_train))
+    testing_accuracy.append(kn.score(x_test,y_test))
+print("list of training accuracy of differnt k values models")
+print(training_accuracy)
+print('\n')
+print('list of testing accuracy of differnt k values models')
+print(testing_accuracy)
+
+plt.plot(neighbors,training_accuracy,label="training_accuaracy")
+plt.plot(neighbors,testing_accuracy,label="testing_accuracy")
+plt.ylabel('accuracy')
+plt.xlabel('neighbors')
+plt.legend()
+plt.savefig('knn_accuracy_comapare_model')
+
+kn = KNeighborsClassifier(n_neighbors = 9).fit(x_train,y_train)
+list_of_training_accuracy.append(kn.score(x_train,y_train))
+list_of_testing_accuracy.append(kn.score(x_test,y_test))
+print("Accuracy of the K-Neares_neighbors_classifer on training set is ",kn.score(x_train,y_train))
+print("Accuracy of the K-Neares_neighbors_classifer on testing set is ",kn.score(x_test,y_test))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,kn.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,kn.predict(x_test)))
+
+# logistic Regression
+from sklearn.linear_model import LogisticRegression
+lgre = LogisticRegression().fit(x_train,y_train)
+ypre = lgre.predict(x_test)
+print("predicted values",ypre)
+print("test set values",list(y_test))
+list_of_training_accuracy.append(lgre.score(x_train,y_train))
+list_of_testing_accuracy.append(lgre.score(x_test,y_test))
+print()
+print("Accuracy of Logistic_Regression on training set is ",lgre.score(x_train,y_train))
+print("Accuracy of Logistic_Regression on testing set is ",lgre.score(x_test,y_test))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,lgre.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,lgre.predict(x_test)))
+
+#decision trees
+
+from sklearn.tree import DecisionTreeClassifier
+dtree = DecisionTreeClassifier(max_depth = 3).fit(x_train,y_train)
+ypre=dtree.predict(x_test)
+print("Predicted values of Outcome using Decison Trees classfier")
+print(ypre)
+print()
+print("actual values of Outcome of the order set")
+print(list(y_test))
+list_of_training_accuracy.append(dtree.score(x_train,y_train))
+list_of_testing_accuracy.append(dtree.score(x_test,y_test))
+print()
+print("Accuracy of Decision Trees on training set is ",dtree.score(x_train,y_train))
+print("Accuracy of Decision Trees on testing set is ",dtree.score(x_test,y_test))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,kn.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,kn.predict(x_test)))
+
+#support vector Machine
+from sklearn.svm import SVC
+svc = SVC()
+svc.fit(x_train, y_train)
+print("Accuracy on training set: {:.2f}".format(svc.score(x_train, y_train)))
+print("Accuracy on test set: {:.2f}".format(svc.score(x_test, y_test)))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,kn.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,kn.predict(x_test)))
+
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+x_train_scaled = scaler.fit_transform(x_train)
+x_test_scaled = scaler.fit_transform(x_test)
+svc = SVC()
+svc.fit(x_train_scaled, y_train)
+print("Accuracy on training set: {:.2f}".format(svc.score(x_train_scaled, y_train)))
+print("Accuracy on test set: {:.2f}".format(svc.score(x_test_scaled, y_test)))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,kn.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,kn.predict(x_test)))
+
+svc = SVC(C=1000)
+svc.fit(x_train_scaled, y_train)
+list_of_training_accuracy.append(svc.score(x_train_scaled,y_train))
+list_of_testing_accuracy.append(svc.score(x_test_scaled,y_test))
+print("Accuracy on training set: {:.3f}".format(
+    svc.score(x_train_scaled, y_train)))
+print("Accuracy on test set: {:.3f}".format(svc.score(x_test_scaled, y_test)))
+print()
+print("Confusion Matrix ")
+print(confusion_matrix(y_test,kn.predict(x_test)))
+print()
+print("Report")
+print(classification_report(y_test,kn.predict(x_test)))
+
+# bar graph of list of models vs accuracy of each model
+list_of_models=['knn','logreg','decision trees','svm']
+plt.bar(list_of_models,list_of_testing_accuracy,width = 0.25)
+plt.xlabel('models')
+plt.ylabel('accuracy')
+plt.title('Plot between the different models and accuracy')
